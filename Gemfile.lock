@@ -1018,8 +1018,6 @@ GEM
       activesupport (>= 6.1)
       sprockets (>= 3.0.0)
     ssrf_filter (1.0.8)
-    stimulus-rails (1.3.4)
-      railties (>= 6.0.0)
     sxp (1.3.0)
       matrix (~> 0.4)
       rdf (~> 3.3)
@@ -1032,9 +1030,6 @@ GEM
     tinymce-rails (5.10.9)
       railties (>= 3.1.1)
     trailblazer-option (0.1.2)
-    turbo-rails (2.0.13)
-      actionpack (>= 7.1.0)
-      railties (>= 7.1.0)
     twitter-typeahead-rails (0.11.1.pre.corejavascript)
       actionpack (>= 3.1)
       jquery-rails
@@ -1125,8 +1120,6 @@ DEPENDENCIES
   selenium-webdriver
   solr_wrapper (>= 0.3)
   sprockets-rails
-  stimulus-rails
-  turbo-rails
   twitter-typeahead-rails (= 0.11.1.pre.corejavascript)
   tzinfo-data
   web-console
