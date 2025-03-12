@@ -1,8 +1,13 @@
 # frozen_string_literal: true
+# Attempts to determine if a global gem source has ready been added by another Gemfile
+if @sources.global_rubygems_source == Bundler::SourceList.new.global_rubygems_source
+  Bundler.ui.info '[Dassie] Adding global rubygems source.'
+  source 'https://rubygems.org'
+else
+  Bundler.ui.info "[Dassie] Global rubygems source already set: #{@sources.global_rubygems_source.inspect}"
+end
+git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-source "https://rubygems.org"
-
-gem "hyrax", "5.1.0-beta1"
 gem 'bootsnap', '>= 1.1.0', require: false
 gem 'bootstrap', '~> 4.0'
 gem 'coffee-rails', '~> 4.2'
@@ -22,6 +27,7 @@ gem 'devise-guests', '~> 0.8'
 #   end
 # end
 
+gemspec name: 'hyrax', path: ENV.fetch('HYRAX_ENGINE_PATH', '..')
 gem 'jbuilder', '~> 2.5'
 gem 'jquery-rails'
 gem 'pg', '~> 1.3'
