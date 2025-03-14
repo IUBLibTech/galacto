@@ -5,4 +5,5 @@ require_relative "config/application"
 
 Rails.application.load_tasks
 
-require 'solr_wrapper/rake_task' unless Rails.env.production?
+# What is this and where did it come from, installing solr_wrapper? Can't find so require fails.
+# require 'solr_wrapper/rake_task' unless Rails.env.production?

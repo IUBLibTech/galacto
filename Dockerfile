@@ -1,69 +1,111 @@
-# syntax = docker/dockerfile:1
-
-# This Dockerfile is designed for production, not development. Use with Kamal or build'n'run by hand:
-# docker build -t my-app .
-# docker run -d -p 80:80 -p 443:443 --name my-app -e RAILS_MASTER_KEY=<value from config/master.key> my-app
-
-# Make sure RUBY_VERSION matches the Ruby version in .ruby-version
+ARG ALPINE_VERSION=3.21
 ARG RUBY_VERSION=3.3.7
-FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 
-# Rails app lives here
-WORKDIR /rails
+FROM ruby:$RUBY_VERSION-alpine$ALPINE_VERSION AS hyrax-base
 
-# Install base packages
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl libjemalloc2 libvips postgresql-client && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
-
-# Set production environment
-ENV RAILS_ENV="production" \
-    BUNDLE_DEPLOYMENT="1" \
-    BUNDLE_PATH="/usr/local/bundle" \
-    BUNDLE_WITHOUT="development"
-
-# Throw-away build stage to reduce size of final image
-FROM base AS build
-
-# Install packages needed to build gems
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git libpq-dev pkg-config && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
-
-# Install application gems
-COPY Gemfile Gemfile.lock ./
-RUN bundle install && \
-    rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
-    bundle exec bootsnap precompile --gemfile
-
-# Copy application code
-COPY . .
-
-# Precompile bootsnap code for faster boot times
-RUN bundle exec bootsnap precompile app/ lib/
-
-# Precompiling assets for production without requiring secret RAILS_MASTER_KEY
-RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+ARG DATABASE_APK_PACKAGE="postgresql-dev"
+ARG EXTRA_APK_PACKAGES="git"
+ARG RUBYGEMS_VERSION=""
+ARG USER_ID=1000
+ARG GROUP_ID=1000
 
 
+RUN addgroup -S -g $GROUP_ID galacto && \
+  adduser -S -G galacto -u $USER_ID -s /bin/sh -h /app galacto
+
+RUN apk --no-cache upgrade && \
+  apk --no-cache add acl \
+  bash \
+  build-base \
+  curl \
+  gcompat \
+  imagemagick \
+  imagemagick-heic \
+  imagemagick-jpeg \
+  imagemagick-jxl \
+  imagemagick-pdf \
+  imagemagick-svg \
+  imagemagick-tiff \
+  imagemagick-webp \
+  jemalloc \
+  ruby-grpc \
+  tzdata \
+  nodejs \
+  yarn \
+  zip \
+  $DATABASE_APK_PACKAGE \
+  $EXTRA_APK_PACKAGES
+
+RUN setfacl -d -m o::rwx /usr/local/bundle && \
+  gem update --silent --system $RUBYGEMS_VERSION
+
+USER galacto
+
+RUN mkdir -p /app
+RUN mkdir -p /app/bin
+WORKDIR /app
+
+COPY --chown=$USER_ID:$GROUP_ID ./bin/*.sh ./bin
+ENV PATH="/app/bin:$PATH" \
+    RAILS_ROOT="/app" \
+    RAILS_SERVE_STATIC_FILES="1" \
+    LD_PRELOAD="/usr/local/lib/libjemalloc.so.2"
+
+ENTRYPOINT ["hyrax-entrypoint.sh"]
+CMD ["bundle", "exec", "puma", "-v", "-b", "tcp://0.0.0.0:3000"]
 
 
-# Final stage for app image
-FROM base
+FROM hyrax-base AS hyrax
 
-# Copy built artifacts: gems, application
-COPY --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
-COPY --from=build /rails /rails
+ARG APP_PATH=.
+ARG BUNDLE_WITHOUT="development test"
 
-# Run and own only the runtime files as a non-root user for security
-RUN groupadd --system --gid 1000 rails && \
-    useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash && \
-    chown -R rails:rails db log storage tmp
-USER 1000:1000
+ONBUILD COPY --chown=$USER_ID:$GROUP_ID $APP_PATH /app
+ONBUILD RUN bundle install --jobs "$(nproc)"
+ONBUILD RUN RAILS_ENV=production SECRET_KEY_BASE=`bin/rails secret` DATABASE_URL='nulldb://nulldb' bundle exec rake assets:precompile
+CMD ["bundle", "exec", "puma", "-v", "-b", "tcp://0.0.0.0:3000"]
 
-# Entrypoint prepares the database.
-ENTRYPOINT ["/rails/bin/docker-entrypoint"]
+FROM hyrax-base AS hyrax-worker-base
 
-# Start the server by default, this can be overwritten at runtime
-EXPOSE 3000
-CMD ["./bin/rails", "server"]
+USER root
+RUN apk --no-cache add bash \
+  ffmpeg \
+  mediainfo \
+  openjdk17-jre \
+  perl
+USER galacto
+
+RUN mkdir -p /app/fits && \
+    cd /app/fits && \
+    wget https://github.com/harvard-lts/fits/releases/download/1.6.0/fits-1.6.0.zip -O fits.zip && \
+    unzip fits.zip && \
+    rm fits.zip tools/mediainfo/linux/libmediainfo.so.0 tools/mediainfo/linux/libzen.so.0 && \
+    chmod a+x /app/fits/fits.sh && \
+    sed -i 's/\(<tool.*TikaTool.*>\)/<!--\1-->/' /app/fits/xml/fits.xml
+ENV PATH="${PATH}:/app/fits"
+
+CMD ["bundle", "exec", "sidekiq"]
+
+
+FROM hyrax-worker-base AS hyrax-worker
+
+ARG APP_PATH=.
+ARG BUNDLE_WITHOUT="development test"
+
+ONBUILD COPY --chown=$USER_ID:$GROUP_ID $APP_PATH /app
+ONBUILD RUN bundle install --jobs "$(nproc)"
+ONBUILD RUN RAILS_ENV=production SECRET_KEY_BASE=`bin/rails secret` DATABASE_URL='nulldb://nulldb' bundle exec rake assets:precompile
+
+FROM hyrax-worker-base AS galacto-dev
+
+USER galacto
+ARG BUNDLE_WITHOUT=
+ARG APP_PATH=.
+COPY --chown=$USER_ID:$GROUP_ID $APP_PATH /app
+
+RUN bundle -v && \
+  bundle install --jobs "$(nproc)" && yarn && \
+  yarn cache clean
+
+ENTRYPOINT ["dev-entrypoint.sh"]
+CMD ["bundle", "exec", "puma", "-v", "-b", "tcp://0.0.0.0:3000"]

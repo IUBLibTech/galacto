@@ -1,70 +1,53 @@
+# frozen_string_literal: true
+
 source "https://rubygems.org"
 
-# Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 7.2.2", ">= 7.2.2.1"
-# The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
-gem "sprockets-rails"
-# Use postgresql as the database for Active Record
-gem "pg", "~> 1.1"
-# Use the Puma web server [https://github.com/puma/puma]
-gem "puma", ">= 5.0"
-# Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
-gem "importmap-rails"
-# Build JSON APIs with ease [https://github.com/rails/jbuilder]
-gem "jbuilder"
-# Use Redis adapter to run Action Cable in production
-# gem "redis", ">= 4.0.1"
+gem "hyrax", "5.1.0-beta1"
+gem 'bootsnap', '>= 1.1.0', require: false
+gem 'bootstrap', '~> 4.0'
+gem 'coffee-rails', '~> 4.2'
+gem 'dalli'
+gem 'devise'
+gem 'devise-guests', '~> 0.8'
 
-# Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
-# gem "kredis"
+# Required because grpc and google-protobuf gem's binaries are not compatible with Alpine Linux.
+# To install the package in Alpine: `apk add ruby-grpc`
+# The pinned versions should match the version provided by the Alpine packages.
 
-# Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
-# gem "bcrypt", "~> 3.1.7"
+# Disabled due to dependency mismatches in Alpine packages (grpc 1.62.1 needs protobuf ~> 3.25)
+# if RUBY_PLATFORM =~ /musl/
+#   path '/usr/lib/ruby/gems/3.3.0' do
+#     gem 'google-protobuf', '~> 3.24.4', force_ruby_platform: true
+#     gem 'grpc', '~> 1.62.1', force_ruby_platform: true
+#   end
+# end
 
-# Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem "tzinfo-data", platforms: %i[ windows jruby ]
-
-# Reduces boot times through caching; required in config/boot.rb
-gem "bootsnap", require: false
-
-# Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
-# gem "image_processing", "~> 1.2"
-
-group :development, :test do
-  # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
-  gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
-
-  # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
-  gem "brakeman", require: false
-
-  # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
-  gem "rubocop-rails-omakase", require: false
-end
+gem 'jbuilder', '~> 2.5'
+gem 'jquery-rails'
+gem 'pg', '~> 1.3'
+gem 'puma'
+gem 'rails', '~> 7.2', '< 8.0'
+gem 'riiif', '~> 2.1'
+gem 'rsolr', '>= 1.0', '< 3'
+gem 'sass-rails', '~> 6.0'
+gem 'sidekiq', '~> 6.4'
+gem 'turbolinks', '~> 5'
+gem 'twitter-typeahead-rails', '0.11.1.pre.corejavascript'
+gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+gem 'uglifier', '>= 1.3.0'
+gem 'activerecord-nulldb-adapter', '~> 1.1'
 
 group :development do
-  # Use console on exceptions pages [https://github.com/rails/web-console]
-  gem "web-console"
-end
+  gem 'better_errors' # add command line in browser when errors
+  gem 'binding_of_caller' # deeper stack trace used by better errors
 
-group :test do
-  # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
-  gem "capybara"
-  gem "selenium-webdriver"
+  # Access an interactive console on exception pages or by calling 'console' anywhere in the code.
+  gem 'web-console', '>= 3.3.0'
 end
-gem "hyrax", "5.1.0-beta1"
 
 group :development, :test do
-  gem "solr_wrapper", ">= 0.3"
-end
-gem "rsolr", ">= 1.0", "< 3"
-gem "bootstrap", "~> 4.0"
-gem "twitter-typeahead-rails", "0.11.1.pre.corejavascript"
-gem "sassc-rails", "~> 2.1"
-gem "jquery-rails"
-gem "devise"
-gem "devise-guests", "~> 0.8"
-
-group :development, :test do
-  gem "fcrepo_wrapper"
-  gem "rspec-rails"
+  gem 'debug', '>= 1.0.0'
+  gem 'pry-doc'
+  gem 'pry-rails'
+  gem 'pry-rescue'
 end
