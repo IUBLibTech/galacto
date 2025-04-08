@@ -9,6 +9,10 @@ services:
       - .docker.env
     volumes:
       - storage:/app/samvera/hyrax-webapp/storage
+      - hyrax-derivatives:/app/samvera/hyrax-webapp/derivatives
+      - hyrax-uploads:/app/samvera/hyrax-webapp/uploads
+      - rails-public:/app/samvera/hyrax-webapp/public
+      - rails-tmp:/app/samvera/hyrax-webapp/tmp
     depends_on:
       - postgres
       - redis
@@ -16,6 +20,25 @@ services:
     ports:
       - 3000:3000
     command: bundle exec rails s
+
+  worker:
+    image: ghcr.io/iublibtech/galacto/galacto:latest
+    command: sh -c 'bundle exec sidekiq'
+    user: root
+    env_file:
+      - .docker.env
+    depends_on:
+      - fcrepo
+      - fits
+      - postgres
+      - redis
+      - solr
+    volumes:
+      - storage:/app/samvera/hyrax-webapp/storage
+      - hyrax-derivatives:/app/samvera/hyrax-webapp/derivatives
+      - hyrax-uploads:/app/samvera/hyrax-webapp/uploads
+      - rails-public:/app/samvera/hyrax-webapp/public
+      - rails-tmp:/app/samvera/hyrax-webapp/tmp
 
   postgres:
     image: postgres:15
@@ -31,6 +54,13 @@ services:
     volumes:
       - redis:/bitnami/redis/data
 
+  fcrepo:
+    image: ghcr.io/samvera/fcrepo4:4.7.5
+    env_file:
+      - .docker.env
+    volumes:
+      - fcrepo:/data:cached
+
   solr:
     image: solr:8.11
     env_file:
@@ -44,8 +74,16 @@ services:
         soft: 65536
         hard: 524288
 
+  fits:
+    image: ghcr.io/samvera/fitsservlet:1.6.0
+
 volumes:
   db:
   redis:
   solr_home:
   storage:
+  fcrepo:
+  hyrax-derivatives:
+  hyrax-uploads:
+  rails-public:
+  rails-tmp:
