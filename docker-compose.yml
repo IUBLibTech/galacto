@@ -14,9 +14,11 @@ services:
       - rails-public:/app/samvera/hyrax-webapp/public
       - rails-tmp:/app/samvera/hyrax-webapp/tmp
     depends_on:
-      - postgres
       - redis
+      - postgres
+      - fcrepo
       - solr
+      - fits
     ports:
       - 3000:3000
     command: bundle exec rails s
@@ -28,11 +30,11 @@ services:
     env_file:
       - .docker.env
     depends_on:
-      - fcrepo
-      - fits
-      - postgres
       - redis
+      - postgres
+      - fcrepo
       - solr
+      - fits
     volumes:
       - storage:/app/samvera/hyrax-webapp/storage
       - hyrax-derivatives:/app/samvera/hyrax-webapp/derivatives
