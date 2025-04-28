@@ -2,7 +2,7 @@
 
 source "https://rubygems.org"
 
-gem "hyrax", "5.1.0-beta1"
+gem "hyrax", "~> 5.1.0"
 gem 'bootsnap', '>= 1.1.0', require: false
 gem 'bootstrap', '~> 4.0'
 gem 'coffee-rails', '~> 4.2'
