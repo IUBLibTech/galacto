@@ -5,7 +5,7 @@ source "https://rubygems.org"
 gem "hyrax", "~> 5.1.0"
 gem 'bootsnap', '>= 1.1.0', require: false
 gem 'bootstrap', '~> 4.0'
-gem 'coffee-rails', '~> 4.2'
+gem 'coffee-rails', '~> 5.0'
 gem 'dalli'
 gem 'devise'
 gem 'devise-guests', '~> 0.8'
