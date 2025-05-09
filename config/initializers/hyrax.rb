@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 Hyrax.config do |config|
+  # Injected via `rails g hyrax:work_resource Image`
+  config.register_curation_concern :image
   # Register roles that are expected by your implementation.
   # @see Hyrax::RoleRegistry for additional details.
   # @note there are magical roles as defined in Hyrax::RoleRegistry::MAGIC_ROLES
@@ -234,13 +236,13 @@ Hyrax.config do |config|
 
   # Identify the model class name that will be used for Collections in your app
   # (i.e. ::Collection for ActiveFedora, Hyrax::PcdmCollection for Valkyrie)
-  # config.collection_model = '::Collection'
-  config.collection_model = 'Hyrax::PcdmCollection'
+  config.collection_model = '::Collection'
+  # config.collection_model = 'Hyrax::PcdmCollection'
 
   # Identify the model class name that will be used for Admin Sets in your app
   # (i.e. AdminSet for ActiveFedora, Hyrax::AdministrativeSet for Valkyrie)
-  # config.admin_set_model = 'AdminSet'
-  config.admin_set_model = 'Hyrax::AdministrativeSet'
+  config.admin_set_model = 'AdminSet'
+  # config.admin_set_model = 'Hyrax::AdministrativeSet'
 
   # Identify the form that will be used for Admin Sets
   # config.administrative_set_form = Hyrax::Forms::AdministrativeSetForm
