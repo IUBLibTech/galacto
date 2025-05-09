@@ -218,10 +218,6 @@ GEM
     disposable (0.6.3)
       declarative (>= 0.0.9, < 1.0.0)
       representable (>= 3.1.1, < 4)
-    dotenv (3.1.8)
-    dotenv-rails (3.1.8)
-      dotenv (= 3.1.8)
-      railties (>= 6.1)
     draper (4.0.4)
       actionpack (>= 5.0)
       activemodel (>= 5.0)
@@ -720,6 +716,9 @@ GEM
       addressable (~> 2.8)
       nokogiri (~> 1.12)
       omniauth (~> 2.1)
+    omniauth-rails_csrf_protection (1.0.2)
+      actionpack (>= 4.2)
+      omniauth (~> 2.0)
     openseadragon (0.9.0)
       rails (> 6.1.0)
     orm_adapter (0.5.0)
@@ -1100,7 +1099,6 @@ DEPENDENCIES
   debug (>= 1.0.0)
   devise
   devise-guests (~> 0.8)
-  dotenv-rails (~> 3.1)
   hydra-role-management
   hyrax (~> 5.1.0)
   jbuilder (~> 2.5)
@@ -1108,8 +1106,9 @@ DEPENDENCIES
   ldap_groups_lookup (~> 0.11.0)
   localhost
   okcomputer
-  omniauth
-  omniauth-cas
+  omniauth (~> 2.0)
+  omniauth-cas (~> 3.0)
+  omniauth-rails_csrf_protection
   pg (~> 1.3)
   pry-doc
   pry-rails

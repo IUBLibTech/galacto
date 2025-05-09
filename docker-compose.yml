@@ -1,12 +1,11 @@
-# Requires Docker Compose v2
 name: galacto
 services:
   app:
+    profiles:
+      - dev
     build:
       context: .
     image: ghcr.io/iublibtech/galacto/galacto:latest
-    env_file:
-      - .docker.env
     volumes:
       - storage:/app/samvera/hyrax-webapp/storage
       - hyrax-derivatives:/app/samvera/hyrax-webapp/derivatives
@@ -16,25 +15,22 @@ services:
     depends_on:
       - redis
       - postgres
-      - fcrepo
+      - fedora4
+      - fedora6
       - solr
       - fits
     ports:
-      - 3000:3000
+      - "3000:3000"
     command: bundle exec rails s
 
   worker:
+    profiles:
+      - dev
     image: ghcr.io/iublibtech/galacto/galacto:latest
     command: sh -c 'bundle exec sidekiq'
     user: root
-    env_file:
-      - .docker.env
     depends_on:
-      - redis
-      - postgres
-      - fcrepo
-      - solr
-      - fits
+      - app
     volumes:
       - storage:/app/samvera/hyrax-webapp/storage
       - hyrax-derivatives:/app/samvera/hyrax-webapp/derivatives
@@ -43,34 +39,55 @@ services:
       - rails-tmp:/app/samvera/hyrax-webapp/tmp
 
   postgres:
-    image: postgres:15
-    env_file:
-      - .docker.env
+    image: postgres:17
+    environment:
+      - POSTGRES_DB=galacto-dev
+      - POSTGRES_PASSWORD=galacto_pass
+      - POSTGRES_USER=galacto_user
+    ports:
+      - "5437:5432"
     volumes:
       - db:/var/lib/postgresql/data
 
-  redis:
-    image: bitnami/redis:6.2
-    env_file:
-      - .docker.env
+  valkey:
+    image: valkey/valkey:8
+    environment:
+      - VALKEY_EXTRA_FLAGS=--save 60 1 --loglevel warning --requirepass galacto_valkey
+    ports:
+      - "6384:6379"
     volumes:
-      - redis:/bitnami/redis/data
+      - valkey:/data
 
-  fcrepo:
+  fedora4:
     image: ghcr.io/samvera/fcrepo4:4.7.5
-    env_file:
-      - .docker.env
+    ports:
+      - "8989:8080"
     volumes:
-      - fcrepo:/data:cached
+      - fedora4:/data
+
+  fedora6:
+    image: fcrepo/fcrepo:6.5.1-tomcat9
+    environment:
+      - >-
+        CATALINA_OPTS=-Dfcrepo.home=/fcrepo-home -Djava.awt.headless=true -Dfile.encoding=UTF-8
+        -server -Xms1G -Xmx2G -XX:NewSize=256m -XX:MaxNewSize=1G
+        -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/data/mem
+        -Dfcrepo.pid.minter.length=2 -Dfcrepo.pid.minter.count=4
+        -Dfcrepo.jms.enabled=false -Dfcrepo.metrics.enable=true
+      - ENCODED_SOLIDUS_HANDLING=passthrough
+    volumes:
+      - fedora6:/fcrepo-home
+    ports:
+      - "8990:8080"
 
   solr:
     image: solr:9.8
-    env_file:
-      - .docker.env
-    command: solr-precreate galacto /opt/solr/server/configsets/hyraxconf
+    command: solr-precreate galacto-dev /opt/solr/server/configsets/hyraxconf
     volumes:
       - solr_home:/var/solr/data
       - ./solr/conf:/opt/solr/server/configsets/hyraxconf:ro
+    ports:
+      - "8988:8983"
     ulimits:
       nofile:
         soft: 65536
@@ -78,13 +95,16 @@ services:
 
   fits:
     image: ghcr.io/samvera/fitsservlet:1.6.0
+    ports:
+      - "8991:8080"
 
 volumes:
   db:
-  redis:
+  valkey:
   solr_home:
   storage:
-  fcrepo:
+  fedora4:
+  fedora6:
   hyrax-derivatives:
   hyrax-uploads:
   rails-public:

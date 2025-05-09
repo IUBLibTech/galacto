@@ -6,6 +6,9 @@ require "rails/all"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
+# Loads Galacto.config
+require File.expand_path('../../lib/galacto.rb', __FILE__)
+
 module Galacto
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.

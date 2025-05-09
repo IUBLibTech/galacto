@@ -61,7 +61,6 @@ end
 
 group :development, :test do
   gem 'debug', '>= 1.0.0'
-  gem 'dotenv-rails', '~> 3.1'
   gem 'pry-doc'
   gem 'pry-rails'
   gem 'pry-rescue'
