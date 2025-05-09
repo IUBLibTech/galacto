@@ -1,4 +1,6 @@
 //= require jquery3
+//= require jquery.dataTables
+//= require dataTables.bootstrap4
 //= require rails-ujs
 //
 // Required by Blacklight
