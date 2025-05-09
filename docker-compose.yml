@@ -83,6 +83,8 @@ services:
   solr:
     image: solr:9.8
     command: solr-precreate galacto-dev /opt/solr/server/configsets/hyraxconf
+    environment:
+      - SOLR_MODULES=analysis-extras,extraction
     volumes:
       - solr_home:/var/solr/data
       - ./solr/conf:/opt/solr/server/configsets/hyraxconf:ro
