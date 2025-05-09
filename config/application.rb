@@ -29,5 +29,8 @@ module Galacto
     # config.eager_load_paths << Rails.root.join("extras")
 
     config.force_ssl = true
+
+    config.active_job.queue_adapter     = Galacto.config[:rails][:active_job][:queue_adapter].to_sym
+    config.active_job.queue_name_prefix = "galacto_#{Rails.env}"
   end
 end
