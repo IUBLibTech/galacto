@@ -86,7 +86,7 @@ services:
     environment:
       - SOLR_MODULES=analysis-extras,extraction
     volumes:
-      - solr_home:/var/solr/data
+      - solr_home:/var/solr
       - ./solr/conf:/opt/solr/server/configsets/hyraxconf:ro
     ports:
       - "8988:8983"
