@@ -68,8 +68,6 @@ tmp
 #redis snapshot db
 dump.rdb
 
-db/schema.rb
-
 .project
 .buildpath
 
