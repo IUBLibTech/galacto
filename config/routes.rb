@@ -7,7 +7,17 @@ Rails.application.routes.draw do
   resource :catalog, only: [:index], as: 'catalog', path: '/catalog', controller: 'catalog' do
     concerns :searchable
   end
-  devise_for :users
+  devise_for :users, controllers: { sessions: 'users/sessions', omniauth_callbacks: "users/omniauth_callbacks" }, skip: [:passwords, :registration]
+  devise_scope :user do
+    get('global_sign_out',
+        to: 'users/sessions#global_logout',
+        as: :destroy_global_session)
+    get 'sign_out', to: 'devise/sessions#destroy', as: :destroy_user_session
+    post 'users/auth/cas', to: 'users/omniauth_authorize#passthru', defaults: { provider: :cas }, as: "new_user_session"
+    # get 'sign_in_as', to: 'users/sessions#become', as: :sign_in_as
+    # get 'users/sessions/log_in_as', to: 'users/sessions#log_in_as', as: :log_in_as
+  end
+  mount Hydra::RoleManagement::Engine => '/'
 
   mount Qa::Engine => '/authorities'
   mount Hyrax::Engine, at: '/'

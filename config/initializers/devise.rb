@@ -273,6 +273,14 @@ Devise.setup do |config|
   # up on your models and hooks.
   # config.omniauth :github, 'APP_ID', 'APP_SECRET', scope: 'user,public_repo'
 
+  config.omniauth :cas,
+                  :host => Galacto.config.dig(:auth, :cas_host),
+                  :login_url => Galacto.config.dig(:auth, :cas_login_url),
+                  :service_validate_url => Galacto.config.dig(:auth, :cas_validate_url),
+                  :logout_url => Galacto.config.dig(:auth, :cas_logout_url),
+                  :callback_url => Galacto.config.dig(:auth, :cas_callback_url),
+                  :ssl => true
+
   # ==> Warden configuration
   # If you want to use other strategies, that are not supported by Devise, or
   # change the failure app, you can configure them inside the config.warden block.

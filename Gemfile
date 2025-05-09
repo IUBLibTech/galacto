@@ -39,8 +39,9 @@ gem 'activerecord-nulldb-adapter', '~> 1.1'
 # Auth
 gem 'devise'
 gem 'devise-guests', '~> 0.8'
-gem 'omniauth'
-gem 'omniauth-cas'
+gem 'omniauth', '~> 2.0'
+gem 'omniauth-cas', '~> 3.0'
+gem "omniauth-rails_csrf_protection"
 gem 'ldap_groups_lookup', '~> 0.11.0'
 gem 'hydra-role-management'
 
