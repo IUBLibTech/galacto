@@ -17,6 +17,10 @@ class Ability
     # if user_groups.include? 'special_group'
     #   can [:create], ActiveFedora::Base
     # end
+
+    if current_user.admin?
+      can :manage, :sidekiq_dashboard
+    end
   end
 
   # Override Hyrax::Ability v5.1.0 to use correct model in solr has_model_ssim
