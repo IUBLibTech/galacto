@@ -60,8 +60,11 @@ group :development do
 end
 
 group :development, :test do
+  gem 'brakeman'
   gem 'debug', '>= 1.0.0'
   gem 'pry-doc'
   gem 'pry-rails'
   gem 'pry-rescue'
+  gem 'rspec-rails'
+  gem 'rubocop'
 end
