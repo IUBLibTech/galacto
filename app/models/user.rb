@@ -11,6 +11,11 @@ class User < ApplicationRecord
   include Blacklight::User
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
+
+  # Provide dummy :password attribute to satisfy Hyrax FactoryBot factories
+  # and User.system_user
+  attr_accessor :password
+
   devise :omniauthable, :omniauth_providers => [:cas]
 
   # Method added by Blacklight; Blacklight uses #to_s on your
