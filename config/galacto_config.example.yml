@@ -4,6 +4,9 @@ default: &default
     password: fedoraAdmin
     url: http://localhost:8989/rest
     base_path: /galacto-dev
+  fedora6:
+    url: http://localhost:8990/fcrepo/rest
+    base_path: galacto-dev
   solr:
     url: http://localhost:8988/solr/galacto-dev
   db:
