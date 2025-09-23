@@ -2,8 +2,6 @@
 
 source "https://rubygems.org"
 
-ruby file: ".ruby-version"
-
 gem 'hyrax', github: 'samvera/hyrax', branch: 'close_the_frigg_door'
 gem 'valkyrie', github: 'samvera/valkyrie', branch: 'resource_cache'
 gem 'bootsnap', '>= 1.1.0', require: false
