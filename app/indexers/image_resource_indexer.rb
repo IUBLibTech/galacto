@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 # Generated via
-#  `rails generate hyrax:work_resource Image`
-class ImageIndexer < Hyrax::Indexers::PcdmObjectIndexer(Image)
+#  `rails generate hyrax:work_resource ImageResource`
+class ImageResourceIndexer < Hyrax::Indexers::PcdmObjectIndexer(ImageResource)
   include Hyrax::Indexer(:basic_metadata)
-  include Hyrax::Indexer(:image)
+  include Hyrax::Indexer(:image_resource)
+
+  include Galacto::IiifThumbnailBehavior
 
   # Uncomment this block if you want to add custom indexing behavior:
   #  def to_solr

@@ -13,11 +13,12 @@ services:
       - rails-public:/app/samvera/hyrax-webapp/public
       - rails-tmp:/app/samvera/hyrax-webapp/tmp
     depends_on:
-      - redis
+      - valkey
       - postgres
-      - fedora4
+#      - fedora4
       - fedora6
       - solr
+      - iiif
       - fits
     ports:
       - "3000:3000"
@@ -48,6 +49,7 @@ services:
       - "5437:5432"
     volumes:
       - db:/var/lib/postgresql/data
+      - ./scripts/postgres-initdb.d:/docker-entrypoint-initdb.d
 
   valkey:
     image: valkey/valkey:8
@@ -74,32 +76,53 @@ services:
         -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/data/mem
         -Dfcrepo.pid.minter.length=2 -Dfcrepo.pid.minter.count=4
         -Dfcrepo.jms.enabled=false -Dfcrepo.metrics.enable=true
+        -Dfcrepo.db.url=jdbc:postgresql://postgres:5432/fcrepo
+        -Dfcrepo.db.user=galacto_user -Dfcrepo.db.password=galacto_pass
+        -Dfcrepo.storage=ocfl-s3 -Dfcrepo.s3.path.style.access=true
+        -Dfcrepo.ocfl.s3.bucket=fcrepo -Dfcrepo.ocfl.s3.prefix=ocfl
+        -Dfcrepo.aws.access-key=galacto -Dfcrepo.aws.secret-key=Galacto12345
+        -Dfcrepo.aws.region=us-east-1 -Dfcrepo.s3.endpoint=http://s3
       - ENCODED_SOLIDUS_HANDLING=passthrough
+    depends_on:
+      - s3
+      - postgres
     volumes:
       - fedora6:/fcrepo-home
     ports:
       - "8990:8080"
 
+  # Creates buckets for the file-backed S3 service.
+  # Exited (0) status is expected.
+  s3-seed:
+    image: andrewgaul/s3proxy:latest
+    command:
+      - mkdir
+      - -p
+      - /data/fcrepo
+    volumes:
+      - s3:/data
+
   s3:
-    image: bitnami/minio:latest
+    image: andrewgaul/s3proxy:latest
     ports:
-      - '9000:9000'
-      - '9001:9001'
+      - '9005:80'
     environment:
-      MINIO_ROOT_USER: galacto-minio
-      MINIO_ROOT_PASSWORD: Galacto12345
-      MINIO_DEFAULT_BUCKETS: 'galacto-dev,galacto-test'
+      S3PROXY_AUTHORIZATION: none
+      S3PROXY_IDENTITY: galacto
+      S3PROXY_CREDENTIAL: Galacto12345
+    depends_on:
+      - s3-seed
     volumes:
       - s3:/data
 
   solr:
-    image: solr:9.8
-    command: solr-precreate galacto-dev /opt/solr/server/configsets/hyraxconf
+    image: solr:9.9
+    command: solr-precreate galacto-dev /hyrax-solr
     environment:
       - SOLR_MODULES=analysis-extras,extraction
     volumes:
       - solr_home:/var/solr
-      - ./solr/conf:/opt/solr/server/configsets/hyraxconf:ro
+      - ./solr:/hyrax-solr:ro
     ports:
       - "8988:8983"
     ulimits:
@@ -108,23 +131,21 @@ services:
         hard: 524288
 
   iiif:
-    image: uclalibrary/cantaloupe:5.0.6-4
+    image: uclalibrary/cantaloupe:5.0.7-0
     ports:
-      - '8182:8182'
+      - '8187:8182'
     environment:
       CANTALOUPE_SOURCE_DELEGATE: "true"
       CANTALOUPE_S3SOURCE_LOOKUP_STRATEGY: ScriptLookupStrategy
-      CANTALOUPE_S3SOURCE_ENDPOINT: http://s3:9000
+      CANTALOUPE_S3SOURCE_ENDPOINT: http://s3:80
       CANTALOUPE_S3SOURCE_REGION: us-east-1  # Set with custom endpoint to avoid lookup query
-      CANTALOUPE_S3SOURCE_ACCESS_KEY_ID: galacto-minio
+      CANTALOUPE_S3SOURCE_ACCESS_KEY_ID: galacto
       CANTALOUPE_S3SOURCE_SECRET_KEY: Galacto12345
       CANTALOUPE_HTTPSOURCE_LOOKUP_STRATEGY: ScriptLookupStrategy
-      CANTALOUPE_HTTPSOURCE_CHUNKING: "false"
       CANTALOUPE_DELEGATE_SCRIPT_ENABLED: "true"
-      CANTALOUPE_DELEGATE_SCRIPT_CACHE_ENABLED: "true"
       CANTALOUPE_DELEGATE_SCRIPT_PATHNAME: /cantaloupe/delegate/delegates.rb
-      CANTALOUPE_FEDORA_BASE: http://fedora4:8080
-      CANTALOUPE_FEDORA_PATH: /rest/galacto-dev
+      CANTALOUPE_FEDORA_BASE: http://fedora6:8080
+      CANTALOUPE_FEDORA_PATH: /fcrepo/rest/galacto-dev
       CANTALOUPE_PROCESSOR_SELECTION_STRATEGY: ManualSelectionStrategy
       CANTALOUPE_MANUAL_PROCESSOR_JPG: Java2dProcessor
       CANTALOUPE_MANUAL_PROCESSOR_JP2: OpenJpegProcessor
@@ -148,7 +169,8 @@ services:
     volumes:
       - './cantaloupe:/cantaloupe/delegate'
     depends_on:
-      - fedora4
+      - fedora6
+      - s3
 
   fits:
     image: ghcr.io/samvera/fitsservlet:1.6.0

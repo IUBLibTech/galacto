@@ -5,7 +5,7 @@ default: &default
     url: http://localhost:8989/rest
     base_path: /galacto-dev
   fedora6:
-    url: http://localhost:8990/fcrepo/rest
+    url: http://fedoraAdmin:fedoraAdmin@localhost:8990/fcrepo/rest
     base_path: galacto-dev
   solr:
     url: http://localhost:8988/solr/galacto-dev
@@ -56,15 +56,15 @@ default: &default
       store: memory_store
       options:
     active_job:
-      queue_adapter: sidekiq
-  cantaloupe:
-    iiif_server_url: http://localhost:8182/iiif/2/
-  #    iiif_server_url: http://localhost:8182/iiif/2/
+      queue_adapter: inline
+  iiif:
+    backend: http://localhost:8187
+    path_prefix: /iiif/3/
   derivatives:
     path: <%= Rails.root.join("tmp/derivatives") %>
   fits:
     ch12n_tool: fits_servlet
-    fits_servlet_url: http://localhost:8085/fits
+    fits_servlet_url: http://localhost:8991/fits
   iucat_libraries:
     url: https://iucat.iu.edu/api/library
     api_enabled: true
@@ -74,19 +74,13 @@ default: &default
     site_id: 0
   google_analytics:
     id:
-  aws:
-    endpoint: http://localhost:9000
-    bucket: galacto-dropbox
-    access_key_id: galacto-minio
-    secret_access_key: Galacto12345
-    region: us-east-1
   external_storage:
-    url:
-    access_key:
-    secret_key:
-    region: 'us-east-1'
-    bucket:
-    prefix:
+    url: http://localhost:9005
+    access_key: galacto
+    secret_key: Galacto12345
+    region: us-east-1
+    bucket: galacto-dev
+    prefix: ext-store
   browse_everything:
     file_system:
       :home: <%= Rails.root.join("staged_files") %>
@@ -248,7 +242,7 @@ default: &default
     contact_email: example@test.test
     service_log: <%= Rails.root.join('log', 'file_service.log') %>
   geonames:
-    username: dlpierce # change in deployment
+    username: demo # change in deployment
 
 development:
   <<: *default
@@ -275,14 +269,14 @@ test:
       url: "redis://127.0.0.1:6379/10"
     sidekiq:
       url: "redis://127.0.0.1:6379/9"
-  cantaloupe:
-    iiif_server_url: https://localhost:3000/iiif/2/
+  iiif:
+    server_url: https://localhost:3001/iiif/3/
   browse_everything:
     file_system:
       :home: <%= Rails.root.join("spec/fixtures") %>
   external_storage:
-    url: http://localhost:9000
-    access_key: galacto-minio
+    url: http://localhost:9005
+    access_key: galacto
     secret_key: Galacto12345
     region: us-east-1
     bucket: galacto-test

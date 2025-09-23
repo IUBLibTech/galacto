@@ -2,11 +2,15 @@
 
 source "https://rubygems.org"
 
-gem "hyrax", "~> 5.1.0"
+ruby file: ".ruby-version"
+
+gem 'hyrax', github: 'samvera/hyrax', branch: 'close_the_frigg_door'
+gem 'valkyrie', github: 'samvera/valkyrie', branch: 'resource_cache'
 gem 'bootsnap', '>= 1.1.0', require: false
 gem 'bootstrap', '~> 4.0'
 gem 'coffee-rails', '~> 4.2'
 gem 'dalli'
+gem 'faraday-net_http_persistent', '~> 2.3'
 
 # Required because grpc and google-protobuf gem's binaries are not compatible with Alpine Linux.
 # To install the package in Alpine: `apk add ruby-grpc`
@@ -25,14 +29,14 @@ gem 'jquery-rails'
 gem 'okcomputer'
 gem 'pg', '~> 1.3'
 gem 'puma'
+gem 'rack-proxy', '~> 0.7'
 gem 'rails', '~> 7.2', '< 8.0'
-gem 'riiif', '~> 2.1'
 gem 'rsolr', '>= 1.0', '< 3'
 gem 'sass-rails', '~> 6.0'
 gem 'sidekiq', '~> 7.0'
 gem 'turbolinks', '~> 5'
 gem 'twitter-typeahead-rails', '0.11.1.pre.corejavascript'
-gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+gem 'tzinfo-data', platforms: [:windows, :jruby]
 gem 'uglifier', '>= 1.3.0'
 gem 'activerecord-nulldb-adapter', '~> 1.1'
 

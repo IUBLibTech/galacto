@@ -19,6 +19,6 @@
 # @see config/metadata/basic_metadata.yaml for an example configuration
 #
 # Generated via
-#  `rails generate hyrax:work_resource Image`
+#  `rails generate hyrax:work_resource ImageResource`
 
 attributes: {}

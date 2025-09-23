@@ -1,0 +1,17 @@
+module Galacto
+  class IiifThumbnailPathService < Hyrax::ThumbnailPathService
+    class << self
+      # @return the network path to the thumbnail
+      # @param [FileSet] thumbnail the object that is the thumbnail
+      def thumbnail_path(thumbnail)
+        Galacto::IiifFileSetPathService.new(thumbnail).iiif_image_url(size: '90,')
+      end
+
+      # @return true if there a file in fedora for this object, otherwise false
+      # @param [FileSet] thumb - the object that is the thumbnail
+      def thumbnail?(thumb)
+        thumb.file_ids.size > 0
+      end
+    end
+  end
+end

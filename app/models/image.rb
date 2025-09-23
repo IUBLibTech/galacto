@@ -1,8 +1,21 @@
-# frozen_string_literal: true
-
 # Generated via
-#  `rails generate hyrax:work_resource Image`
-class Image < Hyrax::Work
-  include Hyrax::Schema(:basic_metadata)
-  include Hyrax::Schema(:image)
+#  `rails generate hyrax:work Image`
+class Image < ActiveFedora::Base
+  include ::Hyrax::WorkBehavior
+  # include StructuralMetadata
+  # include ExtraLockable
+
+  # include ESSI::NumPagesBehavior
+  # include ESSI::OCRBehavior
+
+  self.indexer = ImageIndexer
+  # Change this to restrict which works can be added as a child.
+  # self.valid_child_concerns = []
+  validates :title, presence: { message: 'Your work must have a title.' }
+
+  # This must be included at the end, because it finalizes the metadata
+  # schema (by adding accepts_nested_attributes)
+  # include AllinsonFlex::DynamicMetadataBehavior
+  # include ESSI::DynamicMetadataBehavior
+  include ::Hyrax::BasicMetadata
 end

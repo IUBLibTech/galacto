@@ -68,6 +68,7 @@ module IuUserAuth
 
   def build_groups
     g = roles.map(&:name)
+    g += group_service.fetch_groups(user: self)
     g += ldap_roles
     g += ['registered'] if authorized_patron? || g.include?('admin')
     g

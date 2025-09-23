@@ -29,14 +29,24 @@ require 'faraday/multipart'
 #   :pg_metadata
 # )
 
+Hyrax.config.fedora_connection_builder = lambda { |url|
+  Faraday.new(url) do |f|
+    f.request :multipart
+    f.request :url_encoded
+    f.adapter :net_http_persistent, pool_size: 5 do |http|
+      http.idle_timeout = 100
+    end
+  end
+}
+
 # Fedora metadata adapter
-Valkyrie::MetadataAdapter.register(
-  Valkyrie::Persistence::Fedora::MetadataAdapter.new(
+::Valkyrie::MetadataAdapter.register(
+  ::Valkyrie::Persistence::Fedora::MetadataAdapter.new(
     connection: ::Ldp::Client.new(Hyrax.config.fedora_connection_builder.call(
       Galacto.config[:fedora6][:url]
     )),
     base_path: Galacto.config[:fedora6][:base_path],
-    schema: Valkyrie::Persistence::Fedora::PermissiveSchema.new(Hyrax::SimpleSchemaLoader.new.permissive_schema_for_valkrie_adapter),
+    schema: ::Valkyrie::Persistence::Fedora::PermissiveSchema.new(Hyrax::SimpleSchemaLoader.new.permissive_schema_for_valkrie_adapter),
     fedora_version: 6.5,
     fedora_pairtree_count: 4,
     fedora_pairtree_length: 2
@@ -65,8 +75,8 @@ Valkyrie.config.metadata_adapter = :fedora_metadata
 # Valkyrie.config.storage_adapter = :repository_s3
 
 # Fedora storage adapter
-Valkyrie::StorageAdapter.register(
-  Valkyrie::Storage::Fedora.new(
+::Valkyrie::StorageAdapter.register(
+  ::Valkyrie::Storage::Fedora.new(
     connection: ::Ldp::Client.new(Hyrax.config.fedora_connection_builder.call(
       Galacto.config[:fedora6][:url]
     )),
