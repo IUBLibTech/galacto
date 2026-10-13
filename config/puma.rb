@@ -1,4 +1,4 @@
-require 'localhost'
+#require 'localhost'
 
 # This configuration file will be evaluated by Puma. The top-level methods that
 # are invoked here are part of Puma's configuration DSL. For more information
@@ -26,8 +26,8 @@ threads_count = ENV.fetch("RAILS_MAX_THREADS", 3)
 threads threads_count, threads_count
 
 # Set puma listening address from PUMA_BIND
-clear_binds!
-bind ENV.fetch('PUMA_BIND', "ssl://localhost:3000")
+#clear_binds!
+#bind ENV.fetch('PUMA_BIND', "ssl://localhost:3000")
 
 # Allow puma to be restarted by `bin/rails restart` command.
 plugin :tmp_restart
