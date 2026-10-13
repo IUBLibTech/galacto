@@ -2,17 +2,17 @@ default: &default
   fedora:
     user: fedoraAdmin
     password: fedoraAdmin
-    url: http://fedora4:8989/rest
+    url: http://fedora4:8080/rest
     base_path: /galacto-dev
   fedora6:
-    url: http://fedoraAdmin:fedoraAdmin@fedora6:8990/fcrepo/rest
+    url: http://fedoraAdmin:fedoraAdmin@fedora6:8080/fcrepo/rest
     base_path: galacto-dev
   solr:
-    url: http://solr:8988/solr/galacto-dev
+    url: http://solr:8983/solr/galacto-dev
   db:
     adapter: postgresql
     host: postgres
-    port: 5437
+    port: 5432
     database: galacto-dev
     user: galacto_user
     password: galacto_pass

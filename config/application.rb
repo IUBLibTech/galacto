@@ -28,7 +28,9 @@ module Galacto
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
 
-    config.force_ssl = true
+    #config.force_ssl = true
+
+    config.hosts << ENV['SITE_HOST'] if ENV['SITE_HOST']
 
     config.active_job.queue_adapter     = Galacto.config[:rails][:active_job][:queue_adapter].to_sym
     config.active_job.queue_name_prefix = "galacto_#{Rails.env}"

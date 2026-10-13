@@ -1,17 +1,33 @@
 name: galacto
 services:
+  web:
+    profiles:
+      - dev
+    image: nginxinc/nginx-unprivileged:stable-alpine
+    volumes:
+      - ./etc/galacto-nginx.nginx:/etc/nginx/conf.d/galacto-nginx.conf
+      - ./etc/certs:/etc/nginx/certs
+    ports:
+      - "3000:3000"
+    depends_on:
+      - app
+
   app:
     profiles:
       - dev
     build:
       context: .
     image: ghcr.io/iublibtech/galacto/galacto:latest
+    environment:
+      # Rails allowable hosts needs the 'app' address for nginx to proxy pass to it
+      - SITE_HOST=app
     volumes:
       - storage:/app/samvera/hyrax-webapp/storage
       - hyrax-derivatives:/app/samvera/hyrax-webapp/derivatives
       - hyrax-uploads:/app/samvera/hyrax-webapp/uploads
       - rails-public:/app/samvera/hyrax-webapp/public
       - rails-tmp:/app/samvera/hyrax-webapp/tmp
+      - ./config/galacto_config.docker.yml:/run/secrets/galacto_config.yml
     depends_on:
       - valkey
       - postgres
@@ -20,9 +36,7 @@ services:
       - solr
       - iiif
       - fits
-    ports:
-      - "3000:3000"
-    command: bundle exec rails s
+    command: bundle exec puma -b tcp://0.0.0.0:3000
 
   worker:
     profiles:
@@ -38,6 +52,7 @@ services:
       - hyrax-uploads:/app/samvera/hyrax-webapp/uploads
       - rails-public:/app/samvera/hyrax-webapp/public
       - rails-tmp:/app/samvera/hyrax-webapp/tmp
+      - ./config/galacto_config.docker.yml:/run/secrets/galacto_config.yml
 
   postgres:
     image: postgres:17
