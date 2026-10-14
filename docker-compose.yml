@@ -12,6 +12,7 @@ services:
       - hyrax-uploads:/app/samvera/hyrax-webapp/uploads
       - rails-public:/app/samvera/hyrax-webapp/public
       - rails-tmp:/app/samvera/hyrax-webapp/tmp
+      - ./config/galacto_config.docker.yml:/run/secrets/galacto_config.yml
     depends_on:
       - valkey
       - postgres
@@ -22,7 +23,9 @@ services:
       - fits
     ports:
       - "3000:3000"
-    command: bundle exec rails s
+    environment:
+      - PUMA_BIND=ssl://0.0.0.0:3000
+    command: bundle exec rails s  
 
   worker:
     profiles:
@@ -38,6 +41,7 @@ services:
       - hyrax-uploads:/app/samvera/hyrax-webapp/uploads
       - rails-public:/app/samvera/hyrax-webapp/public
       - rails-tmp:/app/samvera/hyrax-webapp/tmp
+      - ./config/galacto_config.docker.yml:/run/secrets/galacto_config.yml
 
   postgres:
     image: postgres:17
