@@ -82,13 +82,8 @@ services:
         -Dfcrepo.jms.enabled=false -Dfcrepo.metrics.enable=true
         -Dfcrepo.db.url=jdbc:postgresql://postgres:5432/fcrepo
         -Dfcrepo.db.user=galacto_user -Dfcrepo.db.password=galacto_pass
-        -Dfcrepo.storage=ocfl-s3 -Dfcrepo.s3.path.style.access=true
-        -Dfcrepo.ocfl.s3.bucket=fcrepo -Dfcrepo.ocfl.s3.prefix=ocfl
-        -Dfcrepo.aws.access-key=galacto -Dfcrepo.aws.secret-key=Galacto12345
-        -Dfcrepo.aws.region=us-east-1 -Dfcrepo.s3.endpoint=http://s3
       - ENCODED_SOLIDUS_HANDLING=passthrough
     depends_on:
-      - s3
       - postgres
     volumes:
       - fedora6:/fcrepo-home
