@@ -252,8 +252,8 @@ Rails.application.reloader.to_prepare do
     # Identify the model class name that will be used for Admin Sets in your app
     # (i.e. AdminSet for ActiveFedora, Hyrax::AdministrativeSet for Valkyrie)
     # config.admin_set_model = 'AdminSet'
-    # config.admin_set_model = 'Hyrax::AdministrativeSet'
-    config.admin_set_model = '::AdminSetResource'
+    config.admin_set_model = 'Hyrax::AdministrativeSet'
+    # config.admin_set_model = '::AdminSetResource'
 
     # Identify the form that will be used for Admin Sets
     # config.administrative_set_form = Hyrax::Forms::AdministrativeSetForm
