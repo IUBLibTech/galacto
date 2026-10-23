@@ -33,11 +33,11 @@ default: &default
     # This only signals whether Sidekiq runs locally and to check with OKComputer; doesn't alter Sidekiq config or behavior
     processes_locally: true
     queue_names:
-      - important
-      - default
-      - ingest
-      - import # Bulkrax
-      - export # Bulkrax
+      - galacto_<%= ENV['RAILS_ENV'] %>_important
+      - galacto_<%= ENV['RAILS_ENV'] %>_default
+      - galacto_<%= ENV['RAILS_ENV'] %>_ingest
+      - galacto_<%= ENV['RAILS_ENV'] %>_import # Bulkrax
+      - galacto_<%= ENV['RAILS_ENV'] %>_export # Bulkrax
     max_retries: 0
   rails:
     log_level: debug
@@ -56,7 +56,7 @@ default: &default
       store: memory_store
       options:
     active_job:
-      queue_adapter: inline
+      queue_adapter: sidekiq
   iiif:
     backend: http://iiif:8182
     path_prefix: /iiif/3/
